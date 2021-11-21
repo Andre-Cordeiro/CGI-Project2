@@ -1,9 +1,11 @@
 import { buildProgramFromSources, loadShadersFromURLS, setupWebGL } from "../../libs/utils.js";
-import { ortho, lookAt, flatten, vec4} from "../../libs/MV.js";
-import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix, multRotationZ} from "../../libs/stack.js";
+import { ortho, lookAt, flatten, vec4, mult} from "../../libs/MV.js";
+import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix, multRotationZ, multRotationX} from "../../libs/stack.js";
 
 import * as SPHERE from '../../libs/sphere.js';
 import * as CUBE from '../../libs/cube.js';
+import * as CYLINDER from '../../libs/cylinder.js';
+
 
 /** @type WebGLRenderingContext */
 let gl;
@@ -61,9 +63,10 @@ function setup(shaders)
         }
     }
 
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.5, 0.5, 0.6, 1.0);
     CUBE.init(gl);
     //TODO
+    CYLINDER.init(gl);
     //SPHERE.init(gl);
     gl.enable(gl.DEPTH_TEST);   // Enables Z-buffer depth test
     
@@ -103,21 +106,55 @@ function setup(shaders)
         multScale([1, 0.2, 1]);
         multTranslation([i,0,j]);
 
-        if((i+j)%2==0){
-            const colorr = gl.getUniformLocation(program, "fColor");
-            gl.uniform4fv(colorr, vec4(0.7,1.0,1.0,1.0));
-        } else{
-            const colorr = gl.getUniformLocation(program, "fColor");
-            gl.uniform4fv(colorr, vec4(0.8,0.7,0.8,1.0));
-        }
+        const color = gl.getUniformLocation(program, "fColor");
+
+        if((i+j)%2==0)
+            gl.uniform4fv(color, vec4(0.7,1.0,1.0,1.0));
+        else
+            gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
     
-
-
         // Send the current modelview matrix to the vertex shader
         uploadModelView();
 
         // Draw a sphere representing the sun
         CUBE.draw(gl, program, mode);
+    }
+
+
+    function wheel(i,j){
+       multTranslation([i,0.6,j])
+        multScale([1,1,0.5])
+        multRotationX(90)
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.0,0.0,0.0,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    //TODO
+   /* function tankRim(){
+        multScale([0.6,0.6,0.3])
+        multRotationX(90)
+        //multTranslation([i,j,-0.6])
+        multTranslation([0.0,0.0,-0.6]);
+        
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(1.0,0.0,0.0,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }*/
+
+    function drawWheels(){
+        for(let i=0; i<4;i+=1){
+            for(let j=0; j<=3;j+=3){
+                pushMatrix();
+                wheel(i,j);
+                popMatrix();
+            }
+        }
     }
 
 
@@ -138,6 +175,14 @@ function setup(shaders)
             drawFloor();
         popMatrix();
 
+        pushMatrix();
+           drawWheels();
+        popMatrix();
+
+        //TODO
+        /*pushMatrix()
+            tankRim();
+        popMatrix();*/
     }
 }
 
