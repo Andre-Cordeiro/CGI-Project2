@@ -146,9 +146,22 @@ function setup(shaders)
         CYLINDER.draw(gl, program, mode);
     }
 
+    function tankAxle(i){
+
+        multTranslation([i,0.6,1.5])
+        multRotationX(90)
+        multScale([0.3,3,0.3])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.6,0.6,0.6,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
 
     function drawWheels(){
-        for(let i=0; i<4;i+=1){
+        for(let i=0; i<4;i++){
             for(let j=0; j<=3;j+=3){
                 pushMatrix();
                 wheel(i,j);
@@ -158,12 +171,20 @@ function setup(shaders)
     }
 
     function drawRims(){
-        for(let i=0; i<4;i+=1){
+        for(let i=0; i<4;i++){
             for(let j=0; j<=3;j+=3){
                 pushMatrix();
                 tankRim(i,j);
                 popMatrix();
             }
+        }
+    }
+
+    function drawAxles(){
+        for(let i=0; i<4;i++){
+            pushMatrix()
+            tankAxle(i);
+            popMatrix();
         }
     }
 
@@ -191,6 +212,10 @@ function setup(shaders)
 
         pushMatrix()
             drawRims();
+        popMatrix();
+
+        pushMatrix()
+            drawAxles();
         popMatrix();
     }
 }
