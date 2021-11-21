@@ -1,6 +1,6 @@
 import { buildProgramFromSources, loadShadersFromURLS, setupWebGL } from "../../libs/utils.js";
-import { ortho, lookAt, flatten } from "../../libs/MV.js";
-import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix} from "../../libs/stack.js";
+import { ortho, lookAt, flatten, vec4} from "../../libs/MV.js";
+import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix, multRotationZ} from "../../libs/stack.js";
 
 import * as SPHERE from '../../libs/sphere.js';
 import * as CUBE from '../../libs/cube.js';
@@ -18,7 +18,9 @@ const ORBIT_SCALE = 1/60;   // scale that will apply to each orbit around the su
 const EARTH_ORBIT = 149570000*ORBIT_SCALE;
 
 
-const VP_DISTANCE = EARTH_ORBIT;
+const VP_DISTANCE = 5;
+
+let view = lookAt([3,3,3], [0,0,0], [1,2,1]);
 
 
 
@@ -61,6 +63,8 @@ function setup(shaders)
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     CUBE.init(gl);
+    //TODO
+    //SPHERE.init(gl);
     gl.enable(gl.DEPTH_TEST);   // Enables Z-buffer depth test
     
     window.requestAnimationFrame(render);
@@ -75,6 +79,7 @@ function setup(shaders)
 
         gl.viewport(0,0,canvas.width, canvas.height);
         mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
+    
     }
 
     function uploadModelView()
@@ -82,10 +87,31 @@ function setup(shaders)
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "mModelView"), false, flatten(modelView()));
     }
 
-    function Cube()
+    function drawFloor(){
+        for(let i=-15; i<15;i++){
+            for(let j=-15;j<15;j++){
+                pushMatrix();
+                Cube(i,j);
+                popMatrix();
+            }
+        }
+    }
+
+    function Cube(i, j)
     {
-        // Don't forget to scale the sun, rotate it around the y axis at the correct speed
-        multScale([1, 1, 1]);
+    
+        multScale([1, 0.2, 1]);
+        multTranslation([i,0,j]);
+
+        if((i+j)%2==0){
+            const colorr = gl.getUniformLocation(program, "fColor");
+            gl.uniform4fv(colorr, vec4(0.7,1.0,1.0,1.0));
+        } else{
+            const colorr = gl.getUniformLocation(program, "fColor");
+            gl.uniform4fv(colorr, vec4(0.8,0.7,0.8,1.0));
+        }
+    
+
 
         // Send the current modelview matrix to the vertex shader
         uploadModelView();
@@ -106,13 +132,12 @@ function setup(shaders)
         
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "mProjection"), false, flatten(mProjection));
     
-        //loadMatrix(lookAt([0,VP_DISTANCE,VP_DISTANCE], [0,0,0], [0,1,0]));
-        loadMatrix(lookAt([1,1,1], [0,0,0], [0,1,0]));
+        loadMatrix(view);
         
-        pushMatrix();
-            Cube();
+        pushMatrix()
+            drawFloor();
         popMatrix();
-       
+
     }
 }
 
