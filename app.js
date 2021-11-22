@@ -2,7 +2,7 @@ import { buildProgramFromSources, loadShadersFromURLS, setupWebGL } from "../../
 import { ortho, lookAt, flatten, vec4, mult} from "../../libs/MV.js";
 import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix, multRotationZ, multRotationX} from "../../libs/stack.js";
 
-import * as SPHERE from '../../libs/sphere.js';
+import * as PYRAMID from '../../libs/pyramid.js';
 import * as CUBE from '../../libs/cube.js';
 import * as CYLINDER from '../../libs/cylinder.js';
 
@@ -17,7 +17,7 @@ let animation = true;   // Animation is running
 
 const VP_DISTANCE = 5;
 
-let view = lookAt([3,3,3], [0,0,0], [1,2,1]);
+let view = lookAt([0,0,0], [0,0,0], [1,1,0]);
 
 let movementTank = 0;
 let movementWheels = 0;
@@ -67,12 +67,24 @@ function setup(shaders)
                 movementTank-= 0.1;
                 movementWheels-=1;
             break;
+            case '1':
+                view = lookAt([1,0,0], [0,0,0], [1,1,0]);
+            break;
+            case '2':
+                view = lookAt([0,1,0], [0,0,0], [1,1,0]);
+            break;
+            case '3':
+                view = lookAt([0,0,0], [0,0,0], [1,1,0]);
+            break;
+            case '4':
+                view = lookAt([3,3,3], [0,0,0], [1,2,1]);
+            break;
         }
     }
 
     gl.clearColor(0.5, 0.5, 0.6, 1.0);
     CUBE.init(gl);
-    //TODO
+    PYRAMID.init(gl);
     CYLINDER.init(gl);
     //SPHERE.init(gl);
     gl.enable(gl.DEPTH_TEST);   // Enables Z-buffer depth test
@@ -110,7 +122,7 @@ function setup(shaders)
     function Cube(i, j)
     {
     
-        multScale([1, 0, 1]);
+        multScale([1, 0.01, 1]);
         multTranslation([i,0,j]);
 
         const color = gl.getUniformLocation(program, "fColor");
@@ -169,6 +181,44 @@ function setup(shaders)
         CYLINDER.draw(gl, program, mode);
     }
 
+
+    function tankBody(){
+
+        multTranslation([1.5,1.25,1.5])
+        multScale([5,1.5,4])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.6,0.6,0.6,1.0));
+        CUBE.draw(gl, program, mode);
+    }
+
+    //TODO
+    function tankBody2(){
+        
+       // multTranslation([4.5,1.25,0])
+        //multRotationZ(-90)
+        multScale([5,1,1])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.6,0.6,0.6,1.0));
+        PYRAMID.draw(gl, program, mode);
+    }
+
+    function tankHead(){
+
+        multTranslation([1.5,2.25,1.5])
+        multScale([3,0.5,2])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.4,0.4,0.2,1.0));
+        CUBE.draw(gl, program, mode);
+    }
 
     function drawWheels(){
         for(let i=0; i<4;i++){
@@ -229,6 +279,14 @@ function setup(shaders)
             pushMatrix()
                 drawAxles();
             popMatrix();
+        popMatrix()
+
+        pushMatrix()
+            tankBody();
+        popMatrix()
+
+        pushMatrix()
+            tankHead();
         popMatrix()
     }
 }
