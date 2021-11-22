@@ -15,14 +15,13 @@ let speed = 1/60.0;     // Speed (how many days added to time on each render pas
 let mode;               // Drawing mode (gl.LINES or gl.TRIANGLES)
 let animation = true;   // Animation is running
 
-const PLANET_SCALE = 10;    // scale that will apply to each planet and satellite
-const ORBIT_SCALE = 1/60;   // scale that will apply to each orbit around the sun
-const EARTH_ORBIT = 149570000*ORBIT_SCALE;
-
-
 const VP_DISTANCE = 5;
 
 let view = lookAt([3,3,3], [0,0,0], [1,2,1]);
+
+let movementTank = 0;
+let movementWheels = 0;
+
 
 
 
@@ -60,6 +59,14 @@ function setup(shaders)
             case '-':
                 if(animation) speed /= 1.1;
                 break;
+            case 'ArrowUp':
+                movementTank+= 0.1;
+                movementWheels+=1;
+                break;
+            case 'ArrowDown':
+                movementTank-= 0.1;
+                movementWheels-=1;
+            break;
         }
     }
 
@@ -103,7 +110,7 @@ function setup(shaders)
     function Cube(i, j)
     {
     
-        multScale([1, 0.2, 1]);
+        multScale([1, 0, 1]);
         multTranslation([i,0,j]);
 
         const color = gl.getUniformLocation(program, "fColor");
@@ -122,9 +129,10 @@ function setup(shaders)
 
 
     function wheel(i,j){
-        multTranslation([i,0.6,j])
+        multTranslation([i,0.5,j])
         multScale([1,1,0.5])
         multRotationX(90)
+        multRotationY(-movementWheels);
 
         uploadModelView();
 
@@ -135,9 +143,10 @@ function setup(shaders)
 
     
     function tankRim(i,j){
-        multTranslation([i,0.6,j])
+        multTranslation([i,0.5,j])
         multScale([0.6,0.6,0.51])
         multRotationX(90)
+        multRotationY(-movementWheels)
         
         uploadModelView();
 
@@ -148,9 +157,10 @@ function setup(shaders)
 
     function tankAxle(i){
 
-        multTranslation([i,0.6,1.5])
+        multTranslation([i,0.5,1.5])
         multRotationX(90)
         multScale([0.3,3,0.3])
+        multRotationY(-movementWheels);
 
         uploadModelView();
 
@@ -206,17 +216,20 @@ function setup(shaders)
             drawFloor();
         popMatrix();
 
-        pushMatrix();
-           drawWheels();
-        popMatrix();
-
         pushMatrix()
-            drawRims();
-        popMatrix();
+            multTranslation([movementTank,0,0]);
+            pushMatrix();
+                drawWheels();
+            popMatrix();
 
-        pushMatrix()
-            drawAxles();
-        popMatrix();
+            pushMatrix()
+                drawRims();
+            popMatrix();
+
+            pushMatrix()
+                drawAxles();
+            popMatrix();
+        popMatrix()
     }
 }
 
