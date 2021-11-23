@@ -61,6 +61,9 @@ function setup(shaders)
                 mode = gl.TRIANGLES;
                 break;
             case 'a':
+                movementHead+= +0.5;
+                break;
+            case 'd':
                 movementHead+= -0.5;
                 break;
             case 'p':
