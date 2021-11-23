@@ -21,8 +21,13 @@ const VP_DISTANCE = 5;
 
 let view = lookAt([0,0,0], [0,0,0], [1,1,0]);
 
+
 let movementTank = 0;
 let movementWheels = 0;
+//ADDED VARIABLE TO MAKE BAZUKA GO UP AND DOWN NOT WORKING YET!
+let bazukaAngle = 0;
+//ADDED VARIABLE TO MAKE ROTATE NOT WORKING YET!
+let movementHead = 0;
 
 
 
@@ -47,10 +52,16 @@ function setup(shaders)
     document.onkeydown = function(event) {
         switch(event.key) {
             case 'w':
+                bazukaAngle+=0.5;
+                break;
+            case 'W':
                 mode = gl.LINES; 
                 break;
-            case 's':
+            case 'S':
                 mode = gl.TRIANGLES;
+                break;
+            case 'a':
+                movementHead+= -0.5;
                 break;
             case 'p':
                 animation = !animation;
@@ -68,19 +79,19 @@ function setup(shaders)
             case 'ArrowDown':
                 movementTank-= 0.1;
                 movementWheels-=1;
-            break;
+                break;
             case '1':
-                view = lookAt([1,0,0], [0,0,0], [1,1,0]);
-            break;
+                view = lookAt([-0.5,0,0], [0,0,0], [1,1,0]);
+                break;
             case '2':
                 view = lookAt([0,1,0], [0,0,0], [1,1,0]);
-            break;
+                break;
             case '3':
                 view = lookAt([0,0,0], [0,0,0], [1,1,0]);
-            break;
+                break;
             case '4':
                 view = lookAt([3,3,3], [0,0,0], [1,2,1]);
-            break;
+                break;
         }
     }
 
@@ -116,13 +127,13 @@ function setup(shaders)
         for(let i=-15; i<15;i++){
             for(let j=-15;j<15;j++){
                 pushMatrix();
-                Cube(i,j);
+                floorTile(i,j);
                 popMatrix();
             }
         }
     }
 
-    function Cube(i, j)
+    function floorTile(i, j)
     {
     
         multScale([1, 0.01, 1]);
@@ -367,15 +378,42 @@ function setup(shaders)
             pushMatrix()
                 drawAxles();
             popMatrix();
+            pushMatrix()
+                tankBody();
+            popMatrix()
+            pushMatrix()
+                //TODO TRIED MAKING TANK HEAD ROTATE BUT COULDNT NEEDS TO BE FIXED!
+                multRotationY(movementHead);
+                pushMatrix()
+                tankHead();
+                //body_front_prism();
+                popMatrix()
+                pushMatrix()
+                    top_back_appendice();
+                popMatrix()
+                pushMatrix()
+                    top_front_appendice();
+                popMatrix()
+                pushMatrix()
+                    top_bazuka();
+                popMatrix()
+                pushMatrix()
+                    bottom_bazuka();
+                popMatrix()
+                pushMatrix()
+                    bazuka_belt1();
+                popMatrix()
+                pushMatrix()
+                    bazuka_belt2();
+                popMatrix()
+            popMatrix
         popMatrix()
 
-        pushMatrix()
-            tankBody();
-        popMatrix()
+        
 
-        pushMatrix()
+        /*pushMatrix()
             tankHead();
-           // body_front_prism();
+            //body_front_prism();
         popMatrix()
 
         pushMatrix()
@@ -400,7 +438,7 @@ function setup(shaders)
 
         pushMatrix()
             bazuka_belt2();
-        popMatrix()
+        popMatrix()*/
         
 
     }
