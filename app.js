@@ -57,6 +57,9 @@ function setup(shaders)
             case 'W':
                 mode = gl.LINES; 
                 break;
+            case 's':
+                bazukaAngle-=0.5;
+                break;
             case 'S':
                 mode = gl.TRIANGLES;
                 break;
@@ -401,6 +404,7 @@ function setup(shaders)
                     top_bazuka();
                 popMatrix()
                 pushMatrix()
+                    multRotationZ(bazukaAngle);
                     bottom_bazuka();
                 popMatrix()
                 pushMatrix()
