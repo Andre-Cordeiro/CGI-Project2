@@ -5,6 +5,7 @@ import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMat
 import * as PYRAMID from '../../libs/pyramid.js';
 import * as CUBE from '../../libs/cube.js';
 import * as CYLINDER from '../../libs/cylinder.js';
+import * as SPHERE from '../../libs/sphere.js';
 import * as TORUS from '../../libs/torus.js';
 //import { draw } from "./libs/torus.js";
 
@@ -105,8 +106,8 @@ function setup(shaders)
     CUBE.init(gl);
     PYRAMID.init(gl);
     CYLINDER.init(gl);
+    SPHERE.init(gl);
     TORUS.init(gl);
-    //SPHERE.init(gl);
     gl.enable(gl.DEPTH_TEST);   // Enables Z-buffer depth test
     
     window.requestAnimationFrame(render);
@@ -325,6 +326,16 @@ function setup(shaders)
         CYLINDER.draw(gl, program, mode);
     }
 
+    function hatchet() {
+        multTranslation([1.5,2.5,1.5]);
+        multScale([1.3,1.3,1.3]);
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(1.0,1.0,1.0,1.0));
+        SPHERE.draw(gl, program, mode);
+    }
+
     function drawWheels(){
         for(let i=0; i<4;i++){
             for(let j=0; j<=3;j+=3){
@@ -412,6 +423,9 @@ function setup(shaders)
                 popMatrix()
                 pushMatrix()
                     bazuka_belt2();
+                popMatrix()
+                pushMatrix()
+                    hatchet();
                 popMatrix()
             popMatrix
         popMatrix()
