@@ -5,6 +5,8 @@ import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMat
 import * as PYRAMID from '../../libs/pyramid.js';
 import * as CUBE from '../../libs/cube.js';
 import * as CYLINDER from '../../libs/cylinder.js';
+import * as TORUS from '../../libs/torus.js';
+//import { draw } from "./libs/torus.js";
 
 
 /** @type WebGLRenderingContext */
@@ -86,6 +88,7 @@ function setup(shaders)
     CUBE.init(gl);
     PYRAMID.init(gl);
     CYLINDER.init(gl);
+    TORUS.init(gl);
     //SPHERE.init(gl);
     gl.enable(gl.DEPTH_TEST);   // Enables Z-buffer depth test
     
@@ -190,8 +193,20 @@ function setup(shaders)
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.6,0.6,0.6,1.0));
+        gl.uniform4fv(color, vec4(0.75,0.78,0.99,1.0));
         CUBE.draw(gl, program, mode);
+    }
+
+    function body_front_prism(){
+        multTranslation([1.82,-2,0])
+        multRotationZ(-90)
+        multScale([3,1.5,2])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.75,0.78,0.99,1.0));
+        PYRAMID.draw(gl, program, mode);
     }
 
     //TODO
@@ -204,7 +219,7 @@ function setup(shaders)
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.6,0.6,0.6,1.0));
+        gl.uniform4fv(color, vec4(0.74902,0.847059,0.847059,1.0));
         PYRAMID.draw(gl, program, mode);
     }
 
@@ -216,8 +231,81 @@ function setup(shaders)
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.4,0.4,0.2,1.0));
+        gl.uniform4fv(color, vec4( 0.847059 , 0.847059 , 0.77902, 1.0));
+        //gl.uniform4fv(color, vec4(0.5, 0.6, 0.8,1.0));
         CUBE.draw(gl, program, mode);
+    }
+
+    function top_back_appendice() {
+
+        multTranslation([0.5, 2.75, 1.5])
+        multScale([0.2, 0.5, 0.8])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(1.0, 1.0, 1.0, 1.0));
+        CUBE.draw(gl, program, mode);
+    }
+
+    function top_front_appendice(){
+        multTranslation([2.5, 2.6, 1.5])
+        multScale([0.3, 0.2, 0.5])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(1.0, 1.0, 1.0, 1.0));
+        CUBE.draw(gl, program, mode);
+    }
+
+    function top_bazuka(){
+        multTranslation([3.9, 2.6, 1.5])
+        multRotationZ(90)
+        multScale([0.16, 2.5, 0.16])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.64,0.65,0.84,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function bazuka_belt1(){
+        multTranslation([3.1,2.25,1.5])
+        multRotationZ(90)
+        multScale([0.4, 0.2, 0.4])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(1.0,1.0,1.0,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+   
+    function bottom_bazuka(){
+        multTranslation([4.75, 2.28, 1.5])
+        multRotationZ(91)
+        multScale([0.25, 3.5, 0.25])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.64,0.65,0.84,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function bazuka_belt2(){
+        multTranslation([2.7, 2.6, 1.5])
+        multRotationZ(90)
+        multScale([0.21, 0.1, 0.21])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4( 0.847059 , 0.847059 , 0.77902, 1.0));
+        CYLINDER.draw(gl, program, mode);
     }
 
     function drawWheels(){
@@ -287,7 +375,34 @@ function setup(shaders)
 
         pushMatrix()
             tankHead();
+           // body_front_prism();
         popMatrix()
+
+        pushMatrix()
+            top_back_appendice();
+        popMatrix()
+
+        pushMatrix()
+            top_front_appendice();
+        popMatrix()
+
+        pushMatrix()
+            top_bazuka();
+        popMatrix()
+
+        pushMatrix()
+            bottom_bazuka();
+        popMatrix()
+        
+        pushMatrix()
+            bazuka_belt1();
+        popMatrix()
+
+        pushMatrix()
+            bazuka_belt2();
+        popMatrix()
+        
+
     }
 }
 
