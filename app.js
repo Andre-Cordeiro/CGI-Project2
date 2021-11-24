@@ -18,9 +18,9 @@ let speed = 1/60.0;     // Speed (how many days added to time on each render pas
 let mode;               // Drawing mode (gl.LINES or gl.TRIANGLES)
 let animation = true;   // Animation is running
 
-const VP_DISTANCE = 5;
+let VP_DISTANCE = 5;
 
-let view = lookAt([0,0,0], [0,0,0], [1,1,0]);
+let view = lookAt([0,1,0], [0,0,0], [1,1,0]);
 
 
 let movementTank = 0;
@@ -52,6 +52,16 @@ function setup(shaders)
 
     document.onkeydown = function(event) {
         switch(event.key) {
+            case '+':
+                if(VP_DISTANCE>3)
+                    VP_DISTANCE--;
+                mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
+                break;
+            case '-':
+                if(VP_DISTANCE<10)
+                    VP_DISTANCE++;
+                mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
+                break;
             case 'w':
                 bazukaAngle+=0.5;
                 break;
@@ -72,12 +82,6 @@ function setup(shaders)
                 break;
             case 'p':
                 animation = !animation;
-                break;
-            case '+':
-                if(animation) speed *= 1.1;
-                break;
-            case '-':
-                if(animation) speed /= 1.1;
                 break;
             case 'ArrowUp':
                 movementTank+= 0.1;
@@ -244,13 +248,13 @@ function setup(shaders)
     function tankHead(){
 
         multTranslation([1.5,2.25,1.5])
+        multRotationY(movementHead);
         multScale([3,0.5,2])
 
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
         gl.uniform4fv(color, vec4( 0.847059 , 0.847059 , 0.77902, 1.0));
-        //gl.uniform4fv(color, vec4(0.5, 0.6, 0.8,1.0));
         CUBE.draw(gl, program, mode);
     }
 
@@ -278,6 +282,7 @@ function setup(shaders)
     }
 
     function top_bazuka(){
+        
         multTranslation([3.9, 2.6, 1.5])
         multRotationZ(90)
         multScale([0.16, 2.5, 0.16])
@@ -383,7 +388,15 @@ function setup(shaders)
         popMatrix();
 
         pushMatrix()
+
+           
             multTranslation([movementTank,0,0]);
+
+            //METE O TANQUE CENTRADO
+           //multTranslation([-1.5,0,-1.5]);
+            multRotationY(movementHead);
+
+
             pushMatrix();
                 drawWheels();
             popMatrix();
@@ -395,12 +408,14 @@ function setup(shaders)
             pushMatrix()
                 drawAxles();
             popMatrix();
+
             pushMatrix()
                 tankBody();
             popMatrix()
+
             pushMatrix()
                 //TODO TRIED MAKING TANK HEAD ROTATE BUT COULDNT NEEDS TO BE FIXED!
-                multRotationY(movementHead);
+            
                 pushMatrix()
                 tankHead();
                 //body_front_prism();
@@ -428,39 +443,8 @@ function setup(shaders)
                     hatchet();
                 popMatrix()
             popMatrix
-        popMatrix()
+        popMatrix
 
-        
-
-        /*pushMatrix()
-            tankHead();
-            //body_front_prism();
-        popMatrix()
-
-        pushMatrix()
-            top_back_appendice();
-        popMatrix()
-
-        pushMatrix()
-            top_front_appendice();
-        popMatrix()
-
-        pushMatrix()
-            top_bazuka();
-        popMatrix()
-
-        pushMatrix()
-            bottom_bazuka();
-        popMatrix()
-        
-        pushMatrix()
-            bazuka_belt1();
-        popMatrix()
-
-        pushMatrix()
-            bazuka_belt2();
-        popMatrix()*/
-        
 
     }
 }
