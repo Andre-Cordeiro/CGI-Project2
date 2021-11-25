@@ -247,8 +247,7 @@ function setup(shaders)
 
     function tankHead(){
 
-        multTranslation([1.5,2.25,1.5])
-        multRotationY(movementHead);
+        multTranslation([1.5,2.25,1.5])   
         multScale([3,0.5,2])
 
         uploadModelView();
@@ -260,6 +259,7 @@ function setup(shaders)
 
     function top_back_appendice() {
 
+         
         multTranslation([0.5, 2.75, 1.5])
         multScale([0.2, 0.5, 0.8])
 
@@ -370,6 +370,71 @@ function setup(shaders)
     }
 
 
+    function drawTank(){
+        pushMatrix()
+        drawWheels();
+        popMatrix()
+
+        pushMatrix()
+        drawRims();
+        popMatrix()
+
+        pushMatrix()
+        drawAxles();
+        popMatrix()
+
+        pushMatrix()
+        tankBody();
+        popMatrix()
+
+        pushMatrix()
+        drawHead();
+        popMatrix()        
+
+    }
+
+    function drawHead(){
+        if(movementHead != 0){
+            multTranslation([1.5,0,1.5]);
+            multRotationY(movementHead);
+            multTranslation([-1.5,0,-1.5]);
+        }
+        
+        pushMatrix()
+        tankHead();
+        popMatrix()
+
+        pushMatrix()
+        top_back_appendice();
+        popMatrix()
+
+        pushMatrix()
+        top_front_appendice();
+        popMatrix()
+
+        pushMatrix()
+        top_bazuka();
+        popMatrix()
+
+        pushMatrix()
+        //multRotationZ(bazukaAngle);
+        bottom_bazuka();
+        popMatrix()
+
+        pushMatrix()
+        bazuka_belt1();
+        popMatrix()
+
+        pushMatrix()
+        bazuka_belt2();
+        popMatrix
+
+        pushMatrix()
+        hatchet();
+        popMatrix()
+    }
+
+
     function render()
     {
         //if(animation) time += speed;
@@ -387,65 +452,10 @@ function setup(shaders)
             drawFloor();
         popMatrix();
 
-        pushMatrix()
-
-           
-            multTranslation([movementTank,0,0]);
-
-            //METE O TANQUE CENTRADO
-           //multTranslation([-1.5,0,-1.5]);
-            multRotationY(movementHead);
-
-
-            pushMatrix();
-                drawWheels();
-            popMatrix();
-
-            pushMatrix()
-                drawRims();
-            popMatrix();
-
-            pushMatrix()
-                drawAxles();
-            popMatrix();
-
-            pushMatrix()
-                tankBody();
-            popMatrix()
-
-            pushMatrix()
-                //TODO TRIED MAKING TANK HEAD ROTATE BUT COULDNT NEEDS TO BE FIXED!
-            
-                pushMatrix()
-                tankHead();
-                //body_front_prism();
-                popMatrix()
-                pushMatrix()
-                    top_back_appendice();
-                popMatrix()
-                pushMatrix()
-                    top_front_appendice();
-                popMatrix()
-                pushMatrix()
-                    top_bazuka();
-                popMatrix()
-                pushMatrix()
-                    multRotationZ(bazukaAngle);
-                    bottom_bazuka();
-                popMatrix()
-                pushMatrix()
-                    bazuka_belt1();
-                popMatrix()
-                pushMatrix()
-                    bazuka_belt2();
-                popMatrix()
-                pushMatrix()
-                    hatchet();
-                popMatrix()
-            popMatrix
-        popMatrix
-
-
+        //multTranslation([-1.5,0,-1.5]);
+        multTranslation([movementTank,0,0]);
+        drawTank()
+        
     }
 }
 
