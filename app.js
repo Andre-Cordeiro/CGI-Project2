@@ -1,5 +1,5 @@
 import { buildProgramFromSources, loadShadersFromURLS, setupWebGL } from "../../libs/utils.js";
-import { ortho, lookAt, flatten, vec4, mult} from "../../libs/MV.js";
+import { ortho, lookAt, flatten, vec4, mult, rotateZ} from "../../libs/MV.js";
 import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix, multRotationZ, multRotationX} from "../../libs/stack.js";
 
 import * as PYRAMID from '../../libs/pyramid.js';
@@ -29,7 +29,8 @@ let movementWheels = 0;
 let bazukaAngle = 0;
 //ADDED VARIABLE TO MAKE ROTATE NOT WORKING YET!
 let movementHead = 0;
-
+const bazukaAngleMIN = 0.0;
+const bazukaAngleMAX = 30;
 
 
 
@@ -63,14 +64,22 @@ function setup(shaders)
                 mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
                 break;
             case 'w':
-                bazukaAngle+=0.5;
-                break;
+                if(bazukaAngle == bazukaAngleMAX)
+                    break;
+                else{
+                    bazukaAngle+=0.5;
+                    break;
+                }
             case 'W':
                 mode = gl.LINES; 
                 break;
             case 's':
-                bazukaAngle-=0.5;
-                break;
+                if(bazukaAngle == bazukaAngleMIN)
+                    break;
+                else{
+                    bazukaAngle-=0.5;
+                    break;
+                }
             case 'S':
                 mode = gl.TRIANGLES;
                 break;
@@ -188,8 +197,21 @@ function setup(shaders)
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.6,0.6,0.0,1.0));
+        gl.uniform4fv(color, vec4(0.847059 , 0.847059 , 0.77902, 1.0));
         CYLINDER.draw(gl, program, mode);
+    }
+
+    function wheelSpike(i, j){
+        multTranslation([i,0.5,j+0.3])
+        multScale([0.6,0.6,0.7])
+        multRotationX(90)
+        multRotationY(-((movementWheels*360) / Math.PI))
+        
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.6,0.6,0.0,1.0));
+        PYRAMID.draw(gl, program, mode);
     }
 
     function tankAxle(i){
@@ -219,16 +241,67 @@ function setup(shaders)
         CUBE.draw(gl, program, mode);
     }
 
-    function body_front_prism(){
-        multTranslation([1.82,-2,0])
-        multRotationZ(-90)
-        multScale([3,1.5,2])
+    function antenna1(){
+        multTranslation([0.2,3.5,0.7])
+        multRotationX(-10)
+        multScale([0.01,3,0.01])
 
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.75,0.78,0.99,1.0));
-        PYRAMID.draw(gl, program, mode);
+        gl.uniform4fv(color, vec4(0,0.,0,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function antenna2(){
+        multTranslation([0.2,3.5,2.3])
+        multRotationX(10)
+        multScale([0.01,3,0.01])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0,0,0,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function grill1(){
+        multTranslation([-1.001,1.7,1.5])
+        multRotationY(90)
+        multRotationZ(90)
+        multScale([0.01,2,0.01])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0,0,0,1))
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function grill2(){
+        multTranslation([-1.001,1.5,1.5])
+        multRotationY(90)
+        multRotationZ(90)
+        multScale([0.01,1.7,0.01])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0,0,0,1))
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function grill3(){
+        multTranslation([-1.001,1.3,1.5])
+        multRotationY(90)
+        multRotationZ(90)
+        multScale([0.01,1.4,0.01])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0,0,0,1))
+        CYLINDER.draw(gl, program, mode);
     }
 
     //TODO
@@ -392,7 +465,6 @@ function setup(shaders)
         }
     }
 
-
     function drawTank(){
         pushMatrix()
         drawWheels();
@@ -428,12 +500,34 @@ function setup(shaders)
         popMatrix()
 
         pushMatrix()
+        grill1();
+        popMatrix()
+
+        pushMatrix()
+        grill2();
+        popMatrix()
+
+        pushMatrix()
+        grill3();
+        popMatrix()
+
+        pushMatrix()
         top_back_appendice();
         popMatrix()
 
-        //pushMatrix()
-        //top_front_appendice();
-        //popMatrix()
+        pushMatrix()
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
+        antenna1();
+        popMatrix()
+
+        pushMatrix()
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
+        antenna2();
+        popMatrix()
 
         pushMatrix()
         multTranslation([1.7,2.5,0]);
@@ -442,13 +536,13 @@ function setup(shaders)
         top_bazuka();
         popMatrix()
 
-        pushMatrix()
-        bottom_bazuka();
-        popMatrix()
+        //pushMatrix()
+        //bottom_bazuka();
+        //popMatrix()
 
-        pushMatrix()
-        bazuka_belt1();
-        popMatrix()
+        //pushMatrix()
+        //bazuka_belt1();
+        //popMatrix()
 
         pushMatrix()
         multTranslation([1.7,2.5,0]);
@@ -468,9 +562,9 @@ function setup(shaders)
         bazuka_sleeve2();
         popMatrix()
 
-        pushMatrix()
-        bazuka_sleeve1();
-        popMatrix()
+        //pushMatrix()
+        //bazuka_sleeve1();
+        //popMatrix()
     }
 
 
