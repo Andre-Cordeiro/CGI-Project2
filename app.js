@@ -147,8 +147,8 @@ function setup(shaders)
     function floorTile(i, j)
     {
     
-        multScale([1, 0.01, 1]);
-        multTranslation([i,0,j]);
+        multScale([1, 0.4, 1]);
+        multTranslation([i,-0.5,j]);
 
         const color = gl.getUniformLocation(program, "fColor");
 
@@ -169,7 +169,7 @@ function setup(shaders)
         multTranslation([i,0.5,j])
         multScale([1,1,0.5])
         multRotationX(90)
-        multRotationY(-movementWheels);
+        multRotationY(-((movementWheels*360) / Math.PI));
 
         uploadModelView();
 
@@ -183,7 +183,7 @@ function setup(shaders)
         multTranslation([i,0.5,j])
         multScale([0.6,0.6,0.51])
         multRotationX(90)
-        multRotationY(-movementWheels)
+        multRotationY(-((movementWheels*360) / Math.PI))
         
         uploadModelView();
 
@@ -197,7 +197,7 @@ function setup(shaders)
         multTranslation([i,0.5,1.5])
         multRotationX(90)
         multScale([0.3,3,0.3])
-        multRotationY(-movementWheels);
+        multRotationY(-((movementWheels*360) / Math.PI));
 
         uploadModelView();
 
@@ -283,9 +283,45 @@ function setup(shaders)
 
     function top_bazuka(){
         
-        multTranslation([3.9, 2.6, 1.5])
+        multTranslation([3.5, 2.6, 1.5])
         multRotationZ(90)
-        multScale([0.16, 2.5, 0.16])
+        multScale([0.16, 3.7, 0.16])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.64,0.65,0.84,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function bazuka_belt2(){
+        multTranslation([2.6, 2.6, 1.5])
+        multRotationZ(90)
+        multScale([0.21, 0.5, 0.21])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
+        CYLINDER.draw(gl, program, mode);
+    }
+
+    function bazuka_sleeve2(){
+        multTranslation([4.8, 2.6, 1.5])
+        multRotationZ(90)
+        multScale([0.21, 3, 0.21])
+
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
+        TORUS.draw(gl, program, mode);
+    }
+   
+    function bottom_bazuka(){
+        multTranslation([4.75, 2.28, 1.5])
+        multRotationZ(90)
+        multScale([0.15, 3.5, 0.15])
 
         uploadModelView();
 
@@ -297,7 +333,7 @@ function setup(shaders)
     function bazuka_belt1(){
         multTranslation([3.1,2.25,1.5])
         multRotationZ(90)
-        multScale([0.4, 0.2, 0.4])
+        multScale([0.3, 0.7, 0.3])
 
         uploadModelView();
 
@@ -306,34 +342,21 @@ function setup(shaders)
         CYLINDER.draw(gl, program, mode);
     }
 
-   
-    function bottom_bazuka(){
-        multTranslation([4.75, 2.28, 1.5])
-        multRotationZ(91)
-        multScale([0.25, 3.5, 0.25])
-
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.64,0.65,0.84,1.0));
-        CYLINDER.draw(gl, program, mode);
-    }
-
-    function bazuka_belt2(){
-        multTranslation([2.7, 2.6, 1.5])
+    function bazuka_sleeve1(){
+        multTranslation([6.3, 2.27, 1.5])
         multRotationZ(90)
-        multScale([0.21, 0.1, 0.21])
+        multScale([0.2, 1.5, 0.2])
 
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4( 0.847059 , 0.847059 , 0.77902, 1.0));
-        CYLINDER.draw(gl, program, mode);
+        gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
+        TORUS.draw(gl, program, mode);
     }
 
     function hatchet() {
-        multTranslation([1.5,2.5,1.5]);
-        multScale([1.3,1.3,1.3]);
+        multTranslation([1.7,2.5,1.5]);
+        multScale([1.5,1.5,1.5]);
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
@@ -408,16 +431,18 @@ function setup(shaders)
         top_back_appendice();
         popMatrix()
 
-        pushMatrix()
-        top_front_appendice();
-        popMatrix()
+        //pushMatrix()
+        //top_front_appendice();
+        //popMatrix()
 
         pushMatrix()
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
         top_bazuka();
         popMatrix()
 
         pushMatrix()
-        //multRotationZ(bazukaAngle);
         bottom_bazuka();
         popMatrix()
 
@@ -426,11 +451,25 @@ function setup(shaders)
         popMatrix()
 
         pushMatrix()
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
         bazuka_belt2();
-        popMatrix
+        popMatrix()
 
         pushMatrix()
         hatchet();
+        popMatrix()
+
+        pushMatrix()
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
+        bazuka_sleeve2();
+        popMatrix()
+
+        pushMatrix()
+        bazuka_sleeve1();
         popMatrix()
     }
 
@@ -452,7 +491,7 @@ function setup(shaders)
             drawFloor();
         popMatrix();
 
-        //multTranslation([-1.5,0,-1.5]);
+        multTranslation([-1.5,0,-1.5]);
         multTranslation([movementTank,0,0]);
         drawTank()
         
