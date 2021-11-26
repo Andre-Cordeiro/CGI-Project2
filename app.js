@@ -201,19 +201,6 @@ function setup(shaders)
         CYLINDER.draw(gl, program, mode);
     }
 
-    function wheelSpike(i, j){
-        multTranslation([i,0.5,j+0.3])
-        multScale([0.6,0.6,0.7])
-        multRotationX(90)
-        multRotationY(-((movementWheels*360) / Math.PI))
-        
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.6,0.6,0.0,1.0));
-        PYRAMID.draw(gl, program, mode);
-    }
-
     function tankAxle(i){
 
         multTranslation([i,0.5,1.5])
@@ -343,17 +330,6 @@ function setup(shaders)
         CUBE.draw(gl, program, mode);
     }
 
-    function top_front_appendice(){
-        multTranslation([2.5, 2.6, 1.5])
-        multScale([0.3, 0.2, 0.5])
-
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(1.0, 1.0, 1.0, 1.0));
-        CUBE.draw(gl, program, mode);
-    }
-
     function top_bazuka(){
         
         multTranslation([3.5, 2.6, 1.5])
@@ -391,41 +367,6 @@ function setup(shaders)
         TORUS.draw(gl, program, mode);
     }
    
-    function bottom_bazuka(){
-        multTranslation([4.75, 2.28, 1.5])
-        multRotationZ(90)
-        multScale([0.15, 3.5, 0.15])
-
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.64,0.65,0.84,1.0));
-        CYLINDER.draw(gl, program, mode);
-    }
-
-    function bazuka_belt1(){
-        multTranslation([3.1,2.25,1.5])
-        multRotationZ(90)
-        multScale([0.3, 0.7, 0.3])
-
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(1.0,1.0,1.0,1.0));
-        CYLINDER.draw(gl, program, mode);
-    }
-
-    function bazuka_sleeve1(){
-        multTranslation([6.3, 2.27, 1.5])
-        multRotationZ(90)
-        multScale([0.2, 1.5, 0.2])
-
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
-        TORUS.draw(gl, program, mode);
-    }
 
     function hatchet() {
         multTranslation([1.7,2.5,1.5]);
@@ -434,6 +375,16 @@ function setup(shaders)
 
         const color = gl.getUniformLocation(program, "fColor");
         gl.uniform4fv(color, vec4(1.0,1.0,1.0,1.0));
+        SPHERE.draw(gl, program, mode);
+    }
+
+    function projectile() {
+        multTranslation([5.3, 2.6, 1.5]);
+        multScale([0.2,0.2,0.2]);
+        uploadModelView();
+
+        const color = gl.getUniformLocation(program, "fColor");
+        gl.uniform4fv(color, vec4(0,0,0,1.0));
         SPHERE.draw(gl, program, mode);
     }
 
@@ -484,7 +435,20 @@ function setup(shaders)
 
         pushMatrix()
         drawHead();
-        popMatrix()        
+        popMatrix()    
+        
+        pushMatrix()
+        grill1();
+        popMatrix()
+
+        pushMatrix()
+        grill2();
+        popMatrix()
+
+        pushMatrix()
+        grill3();
+        popMatrix()
+
 
     }
 
@@ -500,32 +464,14 @@ function setup(shaders)
         popMatrix()
 
         pushMatrix()
-        grill1();
-        popMatrix()
-
-        pushMatrix()
-        grill2();
-        popMatrix()
-
-        pushMatrix()
-        grill3();
-        popMatrix()
-
-        pushMatrix()
         top_back_appendice();
         popMatrix()
 
         pushMatrix()
-        multTranslation([1.7,2.5,0]);
-        multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
         antenna1();
         popMatrix()
 
         pushMatrix()
-        multTranslation([1.7,2.5,0]);
-        multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
         antenna2();
         popMatrix()
 
@@ -535,14 +481,6 @@ function setup(shaders)
         multTranslation([-1.7,-2.5,0]);
         top_bazuka();
         popMatrix()
-
-        //pushMatrix()
-        //bottom_bazuka();
-        //popMatrix()
-
-        //pushMatrix()
-        //bazuka_belt1();
-        //popMatrix()
 
         pushMatrix()
         multTranslation([1.7,2.5,0]);
@@ -562,9 +500,13 @@ function setup(shaders)
         bazuka_sleeve2();
         popMatrix()
 
-        //pushMatrix()
-        //bazuka_sleeve1();
-        //popMatrix()
+        pushMatrix()
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
+        projectile();
+        popMatrix()
+
     }
 
 
