@@ -32,6 +32,11 @@ let movementHead = 0;
 const bazukaAngleMIN = 0.0;
 const bazukaAngleMAX = 30;
 
+let bullet = false;
+let bulletLoc = 0;
+let bulletPos1;
+let bulletPos2;
+
 
 
 function setup(shaders)
@@ -46,7 +51,7 @@ function setup(shaders)
     let mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
     
 
-    mode = gl.LINES; 
+    mode = gl.TRIANGLES; 
 
     resize_canvas();
     window.addEventListener("resize", resize_canvas);
@@ -91,6 +96,13 @@ function setup(shaders)
                 break;
             case 'p':
                 animation = !animation;
+                break;
+            case ' ':
+                console.log("works");
+                bullet = true;
+                bulletLoc = 0;
+                bulletPos1 = movementHead;
+                bulletPos2 = bazukaAngle;
                 break;
             case 'ArrowUp':
                 movementTank+= 0.1;
@@ -321,6 +333,7 @@ function setup(shaders)
 
          
         multTranslation([0.5, 2.75, 1.5])
+        //multTranslation([0.6,0.5,0])
         multScale([0.2, 0.5, 0.8])
 
         uploadModelView();
@@ -379,7 +392,8 @@ function setup(shaders)
     }
 
     function projectile() {
-        multTranslation([5.3, 2.6, 1.5]);
+
+        multTranslation([5.3+bulletLoc, 2.6, 1.5]);
         multScale([0.2,0.2,0.2]);
         uploadModelView();
 
@@ -416,6 +430,20 @@ function setup(shaders)
         }
     }
 
+    function drawProjectile(){
+        pushMatrix()
+       /* if(movementHead != 0){
+            multTranslation([1.5,0,1.5]);
+            multRotationY(movementHead);
+            multTranslation([-1.5,0,-1.5]);
+        }*/
+        multTranslation([1.7,2.5,0]);
+        multRotationZ(bazukaAngle);
+        multTranslation([-1.7,-2.5,0]);
+        projectile();
+        popMatrix()
+    }
+
     function drawTank(){
         pushMatrix()
         drawWheels();
@@ -449,6 +477,11 @@ function setup(shaders)
         grill3();
         popMatrix()
 
+        /*if(bullet){
+            //bullet = false;
+            drawProjectile();
+        }*/
+        
 
     }
 
@@ -500,19 +533,38 @@ function setup(shaders)
         bazuka_sleeve2();
         popMatrix()
 
-        pushMatrix()
+        /*pushMatrix()
         multTranslation([1.7,2.5,0]);
         multRotationZ(bazukaAngle);
         multTranslation([-1.7,-2.5,0]);
         projectile();
-        popMatrix()
+        popMatrix()*/
 
+    }
+
+    function testDrawProjectile(){
+        pushMatrix()
+        if(bulletPos1 != 0){
+            multTranslation([1.5,0,1.5]);
+            multRotationY(bulletPos1);
+            multTranslation([-1.5,0,-1.5]);
+        }
+        if(bulletPos2 != 0){
+            multTranslation([1.7,2.5,0]);
+            multRotationZ(bulletPos2);
+            multTranslation([-1.7,-2.5,0]);
+        }
+
+        projectile();
+        //bullet = false;
+        popMatrix()
     }
 
 
     function render()
     {
-        //if(animation) time += speed;
+        if(animation) bulletLoc += 0.1;
+
         window.requestAnimationFrame(render);
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -531,6 +583,8 @@ function setup(shaders)
         multTranslation([movementTank,0,0]);
         drawTank()
         
+        if(bullet)
+            testDrawProjectile();
     }
 }
 
