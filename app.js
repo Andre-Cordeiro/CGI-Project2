@@ -57,6 +57,7 @@ const wheelScaleZ = 0.5;
 const wheelTranslationY = 0.5;
 const wheelRotationX = 90;
 
+
 //Rim Constants
 const rimScaleX = 0.6;
 const rimScaleY = 0.6;
@@ -294,12 +295,12 @@ function setup(shaders)
                 break;
 
             case moveTankForward:
-                movementTank+= 0.1;
+                movementTank+= 0.03;
                 movementWheels+=1;
                 break;
 
             case moveTankBackwards:
-                movementTank-= 0.1;
+                movementTank-= 0.03;
                 movementWheels-=1;
                 break;
 
@@ -360,6 +361,10 @@ function setup(shaders)
         gl.uniform4fv(colorVar, color);
     }
 
+    function cilinderRotationY(){
+        return -((movementTank*360) / Math.PI);
+    }
+
     function drawFloor(){
         for(let i=-15; i<15;i++){
             for(let j=-15;j<15;j++){
@@ -393,7 +398,7 @@ function setup(shaders)
         multTranslation([i,wheelTranslationY,j])
         multScale([wheelScaleX,wheelScaleY,wheelScaleZ])
         multRotationX(wheelRotationX)
-        multRotationY(-((movementWheels*360) / Math.PI));
+        multRotationY(cilinderRotationY());
 
         uploadModelView();
 
@@ -408,7 +413,7 @@ function setup(shaders)
         multScale([rimScaleX,rimScaleY,rimScaleZ])
         multRotationX(rimRotationX)
         
-        multRotationY(-((movementWheels*360) / Math.PI))
+        multRotationY(cilinderRotationY())
         
         uploadModelView();
 
@@ -422,7 +427,7 @@ function setup(shaders)
         multTranslation([i,axleTranslationY,axleTranslationZ])
         multRotationX(axleRotationX);
         multScale([axleScaleX,axleScaleY,axleScaleZ])
-        multRotationY(-((movementWheels*360) / Math.PI));
+        multRotationY(cilinderRotationY());
 
         uploadModelView();
 
