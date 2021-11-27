@@ -17,10 +17,184 @@ let time = 0;           // Global simulation time in days
 let speed = 1/60.0;     // Speed (how many days added to time on each render pass
 let mode;               // Drawing mode (gl.LINES or gl.TRIANGLES)
 let animation = true;   // Animation is running
+let VP_DISTANCE = 5;    //ViewPoint distance
 
-let VP_DISTANCE = 5;
+//Commands
+const moreZoom = '+';
+const lessZoom = '-';
+const rizeBazuka ='w';
+const lowerBazuka = 's';
+const wireView = 'W';
+const meshView = 'S';
+const rotLeftBazuka = 'a';
+const rotRightBazuka = 'd'
+const shootProjectile = ' ';
+const moveTankForward = 'ArrowUp';
+const moveTankBackwards = 'ArrowDown';
+const frontViewComm = '1';
+const topViewComm = '2';
+const profileViewComm = '3';
+const axonometricViewComm = '4';
 
-let view = lookAt([0,1,0], [0,0,0], [1,1,0]);
+//Camera Views
+const frontView = lookAt([0.5,0,0], [0,0,0], [1,1,0]); //Camera's back view
+const topView  = lookAt([0,1,0], [0,0,0], [1,1,0]);    //Camera's top view
+const profileView = lookAt([0,0,0], [0,0,0], [1,1,0]); //Camera's profile view
+const axonometricView = lookAt([3,3,3], [0,0,0], [1,2,1]); // Camera's axonometric view
+
+let view = axonometricView; //Camera's first view
+
+//Floor Constants
+const floorScaleX = 1;
+const floorScaleY = 0.4;
+const floorScaleZ = 1;
+const floorTranslationY = -0.5;
+
+//Wheel Constants
+const wheelScaleX = 1;
+const wheelScaleY = 1;
+const wheelScaleZ = 0.5;
+const wheelTranslationY = 0.5;
+const wheelRotationX = 90;
+
+//Rim Constants
+const rimScaleX = 0.6;
+const rimScaleY = 0.6;
+const rimScaleZ = 0.51;
+const rimTranslationY = 0.5;
+const rimRotationX = 90;
+
+//Axle Constants
+const axleScaleX = 0.3;
+const axleScaleY = 3;
+const axleScaleZ = 0.3;
+const axleTranslationY = 0.5;
+const axleTranslationZ = 1.5;
+const axleRotationX = 90;
+
+//Body Constants
+const bodyScaleX = 5;
+const bodyScaleY = 1.5;
+const bodyScaleZ = 4;
+const bodyTranslationX = 1.5;
+const bodyTranslationY = 1.25;
+const bodyTranslationZ = 1.5;
+
+//Antenna1 Constants
+const antenna1TranslationX = 0.2;
+const antenna1TranslationY = 3.5;
+const antenna1TranslationZ = 0.7;
+const antenna1RotationX = -10;
+const antenna1ScaleX = 0.01;
+const antenna1ScaleY = 3;
+const antenna1ScaleZ = 0.01;
+
+//Antenna2 Constants
+const antenna2TranslationX = 0.2;
+const antenna2TranslationY = 3.5;
+const antenna2TranslationZ = 2.3;
+const antenna2RotationX = 10;
+const antenna2ScaleX = 0.01;
+const antenna2ScaleY = 3;
+const antenna2ScaleZ = 0.01;
+
+//Grill1 Constants
+const grill1TranslationX = -1.001;
+const grill1TranslationY = 1.7;
+const grill1TranslationZ = 1.5;
+const grill1RotationY = 90;
+const grill1RotationZ = 90;
+const grill1ScaleX = 0.01;
+const grill1ScaleY = 2;
+const grill1ScaleZ = 0.01;
+
+//Grill2 Constants
+const grill2TranslationX = -1.001;
+const grill2TranslationY = 1.5;
+const grill2TranslationZ = 1.5;
+const grill2RotationY = 90;
+const grill2RotationZ = 90;
+const grill2ScaleX = 0.01;
+const grill2ScaleY = 1.7;
+const grill2ScaleZ = 0.01;
+
+//Grill3 Constants
+const grill3TranslationX = -1.001;
+const grill3TranslationY = 1.3;
+const grill3TranslationZ = 1.5;
+const grill3RotationY = 90;
+const grill3RotationZ = 90;
+const grill3ScaleX = 0.01;
+const grill3ScaleY = 1.3;
+const grill3ScaleZ = 0.01;
+
+//Head Constants
+const headScaleX = 3;
+const headScaleY = 0.5;
+const headScaleZ = 2;
+const headTranslationX = 1.5;
+const headTranslationY = 2.25;
+const headTranslationZ = 1.5;
+
+//Apendice Constants
+const appendiceScaleX = 0.2;
+const appendiceScaleY = 0.5;
+const appendiceScaleZ = 0.8;
+const appendiceTranslationX = 0.5;
+const appendiceTranslationY = 2.75;
+const appendiceTranslationZ = 1.5;
+
+//Bazuka Constants
+const bazukaScaleX = 0.16;
+const bazukaScaleY = 3.7;
+const bazukaScaleZ = 0.16;
+const bazukaTranslationX = 3.5;
+const bazukaTranslationY = 2.6;
+const bazukaTranslationZ = 1.5;
+const bazukaRotationZ = 90;
+
+//Bazuka Belt Constants
+const bazukaBeltScaleX = 0.21;
+const bazukaBeltScaleY = 0.5;
+const bazukaBeltScaleZ = 0.21;
+const bazukaBeltTranslationX = 2.6;
+const bazukaBeltTranslationY = 2.6;
+const bazukaBeltTranslationZ = 1.5;
+const bazukaBeltRotationZ = 90;
+
+//Bazuka Sleeve Constants
+const bazukaSleeveScaleX = 0.21;
+const bazukaSleeveScaleY = 3;
+const bazukaSleeveScaleZ = 0.21;
+const bazukaSleeveTranslationX = 4.8;
+const bazukaSleeveTranslationY = 2.6;
+const bazukaSleeveTranslationZ = 1.5;
+const bazukaSleeveRotationZ = 90;
+
+//Hatchet Constants
+const hatchetScaleX = 1.5;
+const hatchetScaleY = 1.5;
+const hatchetScaleZ = 1.5;
+const hatchetTranslationX = 1.7;
+const hatchetTranslationY = 2.5;
+const hatchetTranslationZ = 1.5;
+
+//Colors 
+const CYAN = vec4(0.7,1.0,1.0,1.0);
+const MAGENTA = vec4(0.8,0.7,0.8,1.0);
+const BLACK = vec4(0.0,0.0,0.0,1.0);
+const DESERT_YELLOW = vec4(0.847059 , 0.847059 , 0.77902, 1.0);
+const DARK_DESERT_YELLOW = vec4(0.6 , 0.6 , 0.6, 1.0);
+const PURPLE = vec4(0.75,0.78,0.99,1.0);
+const WHITE = vec4(1.0, 1.0, 1.0, 1.0);
+const DARK_PURPLE = vec4(0.64,0.65,0.84,1.0);
+const WEIRD_PINK = vec4(0.8,0.7,0.8,1.0);
+
+
+
+
+
+
 
 
 let movementTank = 0;
@@ -48,7 +222,6 @@ let gForce = 9.8;
 
 
 
-
 function setup(shaders)
 {
     let canvas = document.getElementById("gl-canvas");
@@ -60,7 +233,6 @@ function setup(shaders)
 
     let mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
     
-
     mode = gl.TRIANGLES; 
 
     resize_canvas();
@@ -68,72 +240,83 @@ function setup(shaders)
 
     document.onkeydown = function(event) {
         switch(event.key) {
-            case '+':
+
+            case moreZoom:
                 if(VP_DISTANCE>3)
                     VP_DISTANCE--;
-                mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
+                mProjection = getOrthoValue();
                 break;
-            case '-':
+
+            case lessZoom:
                 if(VP_DISTANCE<10)
                     VP_DISTANCE++;
-                mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
+                mProjection = getOrthoValue();
                 break;
-            case 'w':
+
+            case rizeBazuka:
                 if(bazukaAngle == bazukaAngleMAX)
                     break;
                 else{
                     bazukaAngle+=0.5;
                     break;
                 }
-            case 'W':
-                mode = gl.LINES; 
-                break;
-            case 's':
+
+            case lowerBazuka:
                 if(bazukaAngle == bazukaAngleMIN)
                     break;
                 else{
                     bazukaAngle-=0.5;
                     break;
                 }
-            case 'S':
+
+            case wireView:
+                mode = gl.LINES; 
+                break;
+
+            case meshView:
                 mode = gl.TRIANGLES;
                 break;
-            case 'a':
+
+            case rotLeftBazuka:
                 movementHead+= +0.5;
                 break;
-            case 'd':
+                
+            case rotRightBazuka:
                 movementHead+= -0.5;
                 break;
-            case 'p':
-                animation = !animation;
-                break;
-            case ' ':
-                console.log("works");
+
+            case shootProjectile:
                 bullet = true;
                 bulletLoc = 0;
                 bulletPos1 = movementHead;
                 bulletPos2 = bazukaAngle;
                 time = new Date().getTime();
                 break;
-            case 'ArrowUp':
+
+            case moveTankForward:
                 movementTank+= 0.1;
                 movementWheels+=1;
                 break;
-            case 'ArrowDown':
+
+            case moveTankBackwards:
                 movementTank-= 0.1;
                 movementWheels-=1;
                 break;
-            case '1':
-                view = lookAt([-0.5,0,0], [0,0,0], [1,1,0]);
+
+            case frontViewComm:
+                view = frontView;
                 break;
-            case '2':
-                view = lookAt([0,1,0], [0,0,0], [1,1,0]);
+                
+            case topViewComm:
+                view = topView;
                 break;
-            case '3':
-                view = lookAt([0,0,0], [0,0,0], [1,1,0]);
+
+            case profileViewComm:
+                view = profileView;
                 break;
-            case '4':
-                view = lookAt([3,3,3], [0,0,0], [1,2,1]);
+
+            case axonometricViewComm:
+                view = axonometricView;
                 break;
         }
     }
@@ -153,9 +336,7 @@ function setup(shaders)
     {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
         aspect = canvas.width / canvas.height;
-
         gl.viewport(0,0,canvas.width, canvas.height);
         mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
     
@@ -164,6 +345,19 @@ function setup(shaders)
     function uploadModelView()
     {
         gl.uniformMatrix4fv(gl.getUniformLocation(program, "mModelView"), false, flatten(modelView()));
+    }
+
+    function getOrthoValue(){
+        return ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
+    }
+
+    function getFragColorVar(){
+        return gl.getUniformLocation(program, "fColor");
+    }
+
+    function paint(color){
+        let colorVar = getFragColorVar();
+        gl.uniform4fv(colorVar, color);
     }
 
     function drawFloor(){
@@ -179,15 +373,13 @@ function setup(shaders)
     function floorTile(i, j)
     {
     
-        multScale([1, 0.4, 1]);
-        multTranslation([i,-0.5,j]);
-
-        const color = gl.getUniformLocation(program, "fColor");
+        multScale([floorScaleX,floorScaleY, floorScaleZ]);
+        multTranslation([i,floorTranslationY,j]);
 
         if((i+j)%2==0)
-            gl.uniform4fv(color, vec4(0.7,1.0,1.0,1.0));
+            paint(CYAN);
         else
-            gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
+            paint(MAGENTA);
     
         // Send the current modelview matrix to the vertex shader
         uploadModelView();
@@ -198,207 +390,185 @@ function setup(shaders)
 
 
     function wheel(i,j){
-        multTranslation([i,0.5,j])
-        multScale([1,1,0.5])
-        multRotationX(90)
+        multTranslation([i,wheelTranslationY,j])
+        multScale([wheelScaleX,wheelScaleY,wheelScaleZ])
+        multRotationX(wheelRotationX)
         multRotationY(-((movementWheels*360) / Math.PI));
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.0,0.0,0.0,1.0));
+        paint(BLACK);
+
         CYLINDER.draw(gl, program, mode);
     }
 
     
     function tankRim(i,j){
-        multTranslation([i,0.5,j])
-        multScale([0.6,0.6,0.51])
-        multRotationX(90)
+        multTranslation([i,rimTranslationY,j])
+        multScale([rimScaleX,rimScaleY,rimScaleZ])
+        multRotationX(rimRotationX)
+        
         multRotationY(-((movementWheels*360) / Math.PI))
         
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.847059 , 0.847059 , 0.77902, 1.0));
+        paint(DESERT_YELLOW);
+
         CYLINDER.draw(gl, program, mode);
     }
 
     function tankAxle(i){
 
-        multTranslation([i,0.5,1.5])
-        multRotationX(90)
-        multScale([0.3,3,0.3])
+        multTranslation([i,axleTranslationY,axleTranslationZ])
+        multRotationX(axleRotationX);
+        multScale([axleScaleX,axleScaleY,axleScaleZ])
         multRotationY(-((movementWheels*360) / Math.PI));
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.6,0.6,0.6,1.0));
+        paint(DARK_DESERT_YELLOW);
+
         CYLINDER.draw(gl, program, mode);
     }
 
-
     function tankBody(){
 
-        multTranslation([1.5,1.25,1.5])
-        multScale([5,1.5,4])
+        multTranslation([bodyTranslationX,bodyTranslationY,bodyTranslationZ])
+        multScale([bodyScaleX,bodyScaleY,bodyScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.75,0.78,0.99,1.0));
+        paint(PURPLE);
+
         CUBE.draw(gl, program, mode);
     }
 
     function antenna1(){
-        multTranslation([0.2,3.5,0.7])
-        multRotationX(-10)
-        multScale([0.01,3,0.01])
+        multTranslation([antenna1TranslationX,antenna1TranslationY,antenna1TranslationZ])
+        multRotationX(antenna1RotationX)
+        multScale([antenna1ScaleX,antenna1ScaleY,antenna1ScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0,0.,0,1.0));
+        paint(BLACK);
+
         CYLINDER.draw(gl, program, mode);
     }
 
     function antenna2(){
-        multTranslation([0.2,3.5,2.3])
-        multRotationX(10)
-        multScale([0.01,3,0.01])
+        multTranslation([antenna2TranslationX,antenna2TranslationY,antenna2TranslationZ])
+        multRotationX(antenna2RotationX)
+        multScale([antenna2ScaleX,antenna2ScaleY,antenna2ScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0,0,0,1.0));
+        paint(BLACK);
         CYLINDER.draw(gl, program, mode);
     }
 
     function grill1(){
-        multTranslation([-1.001,1.7,1.5])
-        multRotationY(90)
-        multRotationZ(90)
-        multScale([0.01,2,0.01])
+        multTranslation([grill1TranslationX,grill1TranslationY,grill1TranslationZ])
+        multRotationY(grill1RotationY)
+        multRotationZ(grill1RotationZ)
+        multScale([grill1ScaleX,grill1ScaleY,grill1ScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0,0,0,1))
+        paint(BLACK);
+
         CYLINDER.draw(gl, program, mode);
     }
 
     function grill2(){
-        multTranslation([-1.001,1.5,1.5])
-        multRotationY(90)
-        multRotationZ(90)
-        multScale([0.01,1.7,0.01])
+        multTranslation([grill2TranslationX,grill2TranslationY,grill2TranslationZ])
+        multRotationY(grill2RotationY)
+        multRotationZ(grill2RotationZ)
+        multScale([grill2ScaleX,grill2ScaleY,grill2ScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0,0,0,1))
+        paint(BLACK);
+
         CYLINDER.draw(gl, program, mode);
     }
 
     function grill3(){
-        multTranslation([-1.001,1.3,1.5])
-        multRotationY(90)
-        multRotationZ(90)
-        multScale([0.01,1.4,0.01])
+        multTranslation([grill3TranslationX,grill3TranslationY,grill3TranslationZ])
+        multRotationY(grill3RotationY)
+        multRotationZ(grill3RotationZ)
+        multScale([grill3ScaleX,grill3ScaleY,grill3ScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0,0,0,1))
+        paint(BLACK);
+
         CYLINDER.draw(gl, program, mode);
     }
 
-    //TODO
-    function tankBody2(){
-        
-       // multTranslation([4.5,1.25,0])
-        //multRotationZ(-90)
-        multScale([5,1,1])
-
-        uploadModelView();
-
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.74902,0.847059,0.847059,1.0));
-        PYRAMID.draw(gl, program, mode);
-    }
-
     function tankHead(){
-
-        multTranslation([1.5,2.25,1.5])   
-        multScale([3,0.5,2])
+        multTranslation([headTranslationX,headTranslationY,headTranslationZ])   
+        multScale([headScaleX,headScaleY,headScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4( 0.847059 , 0.847059 , 0.77902, 1.0));
+        paint(DESERT_YELLOW);
+
         CUBE.draw(gl, program, mode);
     }
 
     function top_back_appendice() {
-
-         
-        multTranslation([0.5, 2.75, 1.5])
-        //multTranslation([0.6,0.5,0])
-        multScale([0.2, 0.5, 0.8])
+        multTranslation([appendiceTranslationX, appendiceTranslationY, appendiceTranslationZ])
+        multScale([appendiceScaleX, appendiceScaleY, appendiceScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(1.0, 1.0, 1.0, 1.0));
+        paint(WHITE);
+
         CUBE.draw(gl, program, mode);
     }
 
-    function top_bazuka(){
+    function bazuka(){
         
-        multTranslation([3.5, 2.6, 1.5])
-        multRotationZ(90)
-        multScale([0.16, 3.7, 0.16])
+        multTranslation([bazukaTranslationX, bazukaTranslationY, bazukaTranslationZ])
+        multRotationZ(bazukaRotationZ)
+        multScale([bazukaScaleX, bazukaScaleY, bazukaScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.64,0.65,0.84,1.0));
+        paint(DARK_PURPLE);
         CYLINDER.draw(gl, program, mode);
     }
 
-    function bazuka_belt2(){
-        multTranslation([2.6, 2.6, 1.5])
-        multRotationZ(90)
-        multScale([0.21, 0.5, 0.21])
+    function bazukaBelt(){
+        multTranslation([bazukaBeltTranslationX, bazukaBeltTranslationY, bazukaBeltTranslationZ])
+        multRotationZ(bazukaBeltRotationZ)
+        multScale([bazukaBeltScaleX, bazukaBeltScaleY, bazukaBeltScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
+        paint(WEIRD_PINK);
+
         CYLINDER.draw(gl, program, mode);
     }
 
-    function bazuka_sleeve2(){
-        multTranslation([4.8, 2.6, 1.5])
-        multRotationZ(90)
-        multScale([0.21, 3, 0.21])
+    function bazukaSleeve(){
+        multTranslation([bazukaSleeveTranslationX, bazukaSleeveTranslationY, bazukaSleeveTranslationZ])
+        multRotationZ(bazukaSleeveRotationZ)
+        multScale([bazukaSleeveScaleX, bazukaSleeveScaleY, bazukaSleeveScaleZ])
 
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0.8,0.7,0.8,1.0));
+        paint(WEIRD_PINK);
+
         TORUS.draw(gl, program, mode);
     }
-   
 
     function hatchet() {
-        multTranslation([1.7,2.5,1.5]);
-        multScale([1.5,1.5,1.5]);
+        multTranslation([hatchetTranslationX,hatchetTranslationY,hatchetTranslationZ]);
+        multScale([hatchetScaleX,hatchetScaleY,hatchetScaleZ]);
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(1.0,1.0,1.0,1.0));
+        paint(WHITE);
         SPHERE.draw(gl, program, mode);
     }
 
@@ -514,7 +684,6 @@ function setup(shaders)
             //bullet = false;
             drawProjectile();
         }*/
-        
 
     }
 
@@ -545,14 +714,14 @@ function setup(shaders)
         multTranslation([1.7,2.5,0]);
         multRotationZ(bazukaAngle);
         multTranslation([-1.7,-2.5,0]);
-        top_bazuka();
+        bazuka();
         popMatrix()
 
         pushMatrix()
         multTranslation([1.7,2.5,0]);
         multRotationZ(bazukaAngle);
         multTranslation([-1.7,-2.5,0]);
-        bazuka_belt2();
+        bazukaBelt();
         popMatrix()
 
         pushMatrix()
@@ -563,15 +732,8 @@ function setup(shaders)
         multTranslation([1.7,2.5,0]);
         multRotationZ(bazukaAngle);
         multTranslation([-1.7,-2.5,0]);
-        bazuka_sleeve2();
+        bazukaSleeve();
         popMatrix()
-
-        /*pushMatrix()
-        multTranslation([1.7,2.5,0]);
-        multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
-        projectile();
-        popMatrix()*/
 
     }
 
