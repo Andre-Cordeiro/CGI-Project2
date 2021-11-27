@@ -34,8 +34,17 @@ const bazukaAngleMAX = 30;
 
 let bullet = false;
 let bulletLoc = 0;
+let bulletHeight = 0;
 let bulletPos1;
 let bulletPos2;
+let velocityX=0;
+let velocityY=0;
+let accelX=0;
+let accelY=0;
+let bulletX=0;
+let bulletY=0;
+let gForce = 9.8;
+
 
 
 
@@ -103,6 +112,7 @@ function setup(shaders)
                 bulletLoc = 0;
                 bulletPos1 = movementHead;
                 bulletPos2 = bazukaAngle;
+                time = new Date().getTime();
                 break;
             case 'ArrowUp':
                 movementTank+= 0.1;
@@ -392,14 +402,38 @@ function setup(shaders)
     }
 
     function projectile() {
-
-        multTranslation([5.3+bulletLoc, 2.6, 1.5]);
+        //console.log("X is NaN:" + isNaN(parseFloat(bulletX)) + ". Value is " + bulletX);
+        multTranslation([5.3+bulletX, 2.6-bulletY, 1.5]);
         multScale([0.2,0.2,0.2]);
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
         gl.uniform4fv(color, vec4(0,0,0,1.0));
         SPHERE.draw(gl, program, mode);
+    }
+
+    function resetProjectileVar(){
+        velocityX = initialV * Math.cos(bazukaAngle);
+        velocityY = initialV * Math.sin(bazukaAngle);
+        
+        accelX = 0;
+        accelY = 0;
+
+        bulletX = 0;
+        bulletY = 0;
+
+    }
+
+    function updateVelocity(dt) {
+        console.log("velocity is "+ velocityX);
+        velocityX += gForce * dt;
+        velocityY += gForce * dt;
+    }
+
+    function updatePosition(dt) {
+        console.log("bulletX is "+ bulletX);
+        bulletX += velocityX * dt + (gForce * Math.pow(dt,2)*0.5);
+        bulletY += velocityY * dt + (gForce * Math.pow(dt,2)*0.5);
     }
 
     function drawWheels(){
@@ -563,7 +597,12 @@ function setup(shaders)
 
     function render()
     {
-        if(animation) bulletLoc += 0.1;
+        if(animation) {
+            //bulletLoc += 0.1;
+            //bulletHeight += 0.1;
+        }
+
+       
 
         window.requestAnimationFrame(render);
 
@@ -583,8 +622,16 @@ function setup(shaders)
         multTranslation([movementTank,0,0]);
         drawTank()
         
-        if(bullet)
+        if(bullet) {
+            var dt = (new Date().getTime() - time) /1000; //seconds
+            //console.log("Delta time is " + dt);
+            //console.log("Time is "+ time);
+            time = new Date().getTime(); //reset t 
+    
+            updateVelocity(dt);
+            updatePosition(dt);
             testDrawProjectile();
+        }
     }
 }
 
