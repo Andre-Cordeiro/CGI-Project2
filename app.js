@@ -31,13 +31,14 @@ let bazukaAngle = 0;
 let movementHead = 0;
 const bazukaAngleMIN = 0.0;
 const bazukaAngleMAX = 30;
+const fireVelocity = 10;
 
 let bullet = false;
 let bulletLoc = 0;
 let bulletHeight = 0;
 let bulletPos1;
 let bulletPos2;
-let velocityX=0;
+let velocityX=fireVelocity;
 let velocityY=0;
 let accelX=0;
 let accelY=0;
@@ -413,25 +414,23 @@ function setup(shaders)
     }
 
     function resetProjectileVar(){
-        velocityX = initialV * Math.cos(bazukaAngle);
-        velocityY = initialV * Math.sin(bazukaAngle);
-        
-        accelX = 0;
-        accelY = 0;
-
+        velocityX = fireVelocity;
+        velocityY = 0;
         bulletX = 0;
         bulletY = 0;
 
     }
 
     function updateVelocity(dt) {
-        console.log("velocity is "+ velocityX);
+        console.log("velocityX is "+ velocityX);
+        console.log("velocityY is "+ velocityY);
         velocityX += gForce * dt;
         velocityY += gForce * dt;
     }
 
     function updatePosition(dt) {
         console.log("bulletX is "+ bulletX);
+        console.log("bulletY is "+ bulletY);
         bulletX += velocityX * dt + (gForce * Math.pow(dt,2)*0.5);
         bulletY += velocityY * dt + (gForce * Math.pow(dt,2)*0.5);
     }
@@ -631,6 +630,11 @@ function setup(shaders)
             updateVelocity(dt);
             updatePosition(dt);
             testDrawProjectile();
+
+            if((2.6-bulletY) <= 0){
+                bullet = false;
+                resetProjectileVar();
+            }
         }
     }
 }
