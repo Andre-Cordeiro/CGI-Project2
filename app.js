@@ -7,17 +7,15 @@ import * as CUBE from '../../libs/cube.js';
 import * as CYLINDER from '../../libs/cylinder.js';
 import * as SPHERE from '../../libs/sphere.js';
 import * as TORUS from '../../libs/torus.js';
-//import { draw } from "./libs/torus.js";
 
 
 /** @type WebGLRenderingContext */
 let gl;
 
-let time = 0;           // Global simulation time in days
-let speed = 1/60.0;     // Speed (how many days added to time on each render pass
-let mode;               // Drawing mode (gl.LINES or gl.TRIANGLES)
-let animation = true;   // Animation is running
-let VP_DISTANCE = 5;    //ViewPoint distance
+let time = 0;
+let mode;      
+let animation = true;
+let VP_DISTANCE = 5;
 
 //Commands
 const moreZoom = '+';
@@ -194,16 +192,8 @@ const DARK_PURPLE = vec4(0.64,0.65,0.84,1.0);
 const WEIRD_PINK = vec4(0.8,0.7,0.8,1.0);
 
 
-
-
-
-
-
-
 let movementTank = 0;
-//ADDED VARIABLE TO MAKE BAZUKA GO UP AND DOWN NOT WORKING YET!
 let bazukaAngle = 0;
-//ADDED VARIABLE TO MAKE ROTATE NOT WORKING YET!
 let movementHead = 0;
 
 const bazukaAngleMIN = 0.0;
@@ -211,21 +201,13 @@ const bazukaAngleMAX = 30;
 const fireVelocity = 10;
 
 let bullet = false;
-let bulletLoc = 0;
-let bulletHeight = 0;
 let bulletPos1;
 let bulletPos2;
 let velocityX=fireVelocity;
 let velocityY=0;
-let accelX=0;
-let accelY=0;
 let bulletX=0;
 let bulletY=0;
 let gForce = 9.8;
-
-
-let M;
-let P0;
 
 
 function setup(shaders)
@@ -293,14 +275,8 @@ function setup(shaders)
 
             case shootProjectile:
                 bullet = true;
-                bulletLoc = 0;
                 bulletPos1 = movementHead;
                 bulletPos2 = bazukaAngle;
-
-                M= mult( inverse(modelView()),modelView());
-                P0 = mult(M,vec4(0,0.5,0,1));
-                console.log(P0);
-
                 time = new Date().getTime();
                 break;
 
@@ -341,7 +317,7 @@ function setup(shaders)
     CYLINDER.init(gl);
     SPHERE.init(gl);
     TORUS.init(gl);
-    gl.enable(gl.DEPTH_TEST);   // Enables Z-buffer depth test
+    gl.enable(gl.DEPTH_TEST);
     
     window.requestAnimationFrame(render);
 
@@ -387,9 +363,7 @@ function setup(shaders)
         }
     }
 
-    function floorTile(i, j)
-    {
-    
+    function floorTile(i, j){
         multScale([floorScaleX,floorScaleY, floorScaleZ]);
         multTranslation([i,floorTranslationY,j]);
 
@@ -398,10 +372,7 @@ function setup(shaders)
         else
             paint(MAGENTA);
     
-        // Send the current modelview matrix to the vertex shader
         uploadModelView();
-
-        // Draw a sphere representing the sun
         CUBE.draw(gl, program, mode);
     }
 
@@ -608,15 +579,11 @@ function setup(shaders)
     }
 
     function updateVelocity(dt) {
-        //console.log("velocityX is "+ velocityX);
-        //console.log("velocityY is "+ velocityY);
         velocityX += gForce * dt;
         velocityY += gForce * dt;
     }
 
     function updatePosition(dt) {
-        //console.log("bulletX is "+ bulletX);
-        //console.log("bulletY is "+ bulletY);
         bulletX += velocityX * dt + (gForce * Math.pow(dt,2)*0.5);
         bulletY += velocityY * dt + (gForce * Math.pow(dt,2)*0.5);
     }
@@ -647,20 +614,6 @@ function setup(shaders)
             tankAxle(i);
             popMatrix();
         }
-    }
-
-    function drawProjectile(){
-        pushMatrix()
-       /* if(movementHead != 0){
-            multTranslation([1.5,0,1.5]);
-            multRotationY(movementHead);
-            multTranslation([-1.5,0,-1.5]);
-        }*/
-        multTranslation([1.7,2.5,0]);
-        multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
-        projectile();
-        popMatrix()
     }
 
     function drawTankBody(){
@@ -746,7 +699,7 @@ function setup(shaders)
         popMatrix()
     }
 
-    function testDrawProjectile(){
+    function drawProjectile(){
         pushMatrix()
         if(bulletPos1 != 0){
             multTranslation([1.5,0,1.5]);
@@ -767,8 +720,7 @@ function setup(shaders)
     function render()
     {
         if(animation) {
-            //bulletLoc += 0.1;
-            //bulletHeight += 0.1;
+           
         }
        
         window.requestAnimationFrame(render);
@@ -791,13 +743,11 @@ function setup(shaders)
         
         if(bullet) {
             var dt = (new Date().getTime() - time) /1000; //seconds
-            //console.log("Delta time is " + dt);
-            //console.log("Time is "+ time);
             time = new Date().getTime(); //reset t 
     
             updateVelocity(dt);
             updatePosition(dt);
-            testDrawProjectile();
+            drawProjectile();
 
             if((2.6-bulletY) <= 0){
                 bullet = false;
