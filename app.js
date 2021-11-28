@@ -11,7 +11,6 @@ import * as TORUS from '../../libs/torus.js';
 
 /** @type WebGLRenderingContext */
 let gl;
-
 let time = 0;
 let mode;      
 let animation = true;
@@ -49,6 +48,8 @@ const floorScaleX = 1;
 const floorScaleY = 0.4;
 const floorScaleZ = 1;
 const floorTranslationY = -0.5;
+const maxFloor = 15;
+const minFloor = -15;
 
 //Wheel Constants
 const wheelScaleX = 1;
@@ -56,6 +57,10 @@ const wheelScaleY = 0.5;
 const wheelScaleZ = 1;
 const wheelTranslationY = 0.5;
 const wheelRotationX = 90;
+const wheelMinX = 0;
+const wheelMaxX = 4;
+const wheelMinZ = 0
+const wheelMaxZ = 3;
 
 
 //Rim Constants
@@ -64,6 +69,10 @@ const rimScaleY = 0.51;
 const rimScaleZ = 0.6;
 const rimTranslationY = 0.5;
 const rimRotationX = 90;
+const rimMinX = 0;
+const rimMaxX = 4;
+const rimMinZ = 0;
+const rimMaxZ = 3;
 
 //Axle Constants
 const axleScaleX = 0.3;
@@ -72,6 +81,8 @@ const axleScaleZ = 0.3;
 const axleTranslationY = 0.5;
 const axleTranslationZ = 1.5;
 const axleRotationX = 90;
+const axleMinX = 0;
+const axleMaxX = 4;
 
 //Body Constants
 const bodyScaleX = 5;
@@ -190,6 +201,18 @@ const PURPLE = vec4(0.75,0.78,0.99,1.0);
 const WHITE = vec4(1.0, 1.0, 1.0, 1.0);
 const DARK_PURPLE = vec4(0.64,0.65,0.84,1.0);
 const WEIRD_PINK = vec4(0.8,0.7,0.8,1.0);
+
+//Projectile Constants
+const projectileScale = 0.2;
+const projTranslationX = 5.3;
+const projTranslationY = 2.6;
+const projTranslationZ = 1.5;
+
+//Center Constants
+const centerTank = -1.5;
+const centerHead = 1.5;
+const centerHatchetX = 1.7;
+const centerHatchetY = 2.5;
 
 
 let movementTank = 0;
@@ -354,8 +377,8 @@ function setup(shaders)
     }
 
     function drawFloor(){
-        for(let i=-15; i<15;i++){
-            for(let j=-15;j<15;j++){
+        for(let i=minFloor; i<maxFloor;i++){
+            for(let j=minFloor;j<maxFloor;j++){
                 pushMatrix();
                 floorTile(i,j);
                 popMatrix();
@@ -377,8 +400,8 @@ function setup(shaders)
     }
 
 
-    function wheel(i,j){
-        multTranslation([i,wheelTranslationY,j])
+    function wheel(wheelX,wheelZ){
+        multTranslation([wheelX,wheelTranslationY,wheelZ])
         multRotationX(wheelRotationX)
         multRotationY(cilinderRotationY());
         multScale([wheelScaleX,wheelScaleY,wheelScaleZ]);
@@ -391,8 +414,8 @@ function setup(shaders)
     }
 
     
-    function tankRim(i,j){
-        multTranslation([i,rimTranslationY,j])
+    function tankRim(rimX,rimZ){
+        multTranslation([rimX,rimTranslationY,rimZ])
         multRotationX(rimRotationX)
         multRotationY(cilinderRotationY())
         multScale([rimScaleX,rimScaleY,rimScaleZ])
@@ -404,9 +427,9 @@ function setup(shaders)
         CYLINDER.draw(gl, program, mode);
     }
 
-    function tankAxle(i){
+    function tankAxle(axleX){
 
-        multTranslation([i,axleTranslationY,axleTranslationZ])
+        multTranslation([axleX,axleTranslationY,axleTranslationZ])
         multRotationX(axleRotationX);
         multRotationY(cilinderRotationY());
         multScale([axleScaleX,axleScaleY,axleScaleZ])
@@ -560,13 +583,13 @@ function setup(shaders)
 
     function projectile() {
         
-        multTranslation([5.3+bulletX, 2.6-bulletY, 1.5]);
-        multScale([0.2,0.2,0.2]);
+        multTranslation([projTranslationX+bulletX, projTranslationY-bulletY, projTranslationZ]);
+        multScale([projectileScale,projectileScale,projectileScale]);
         
         uploadModelView();
 
-        const color = gl.getUniformLocation(program, "fColor");
-        gl.uniform4fv(color, vec4(0,0,0,1.0));
+        paint(BLACK);
+
         SPHERE.draw(gl, program, mode);
     }
 
@@ -588,30 +611,31 @@ function setup(shaders)
         bulletY += velocityY * dt + (gForce * Math.pow(dt,2)*0.5);
     }
 
+    /// Draw Functions
     function drawWheels(){
-        for(let i=0; i<4;i++){
-            for(let j=0; j<=3;j+=3){
+        for(let wheelX=wheelMinX; wheelX<wheelMaxX;wheelX++){
+            for(let wheelZ=wheelMinZ; wheelZ<=wheelMaxZ;wheelZ+=wheelMaxZ){
                 pushMatrix();
-                wheel(i,j);
+                wheel(wheelX,wheelZ);
                 popMatrix();
             }
         }
     }
 
     function drawRims(){
-        for(let i=0; i<4;i++){
-            for(let j=0; j<=3;j+=3){
+        for(let rimX=rimMinX; rimX<rimMaxX;rimX++){
+            for(let rimZ=rimMinZ; rimZ<=rimMaxZ;rimZ+=rimMaxZ){
                 pushMatrix();
-                tankRim(i,j);
+                tankRim(rimX,rimZ);
                 popMatrix();
             }
         }
     }
 
     function drawAxles(){
-        for(let i=0; i<4;i++){
+        for(let axleX=axleMinX; axleX<axleMaxX;axleX++){
             pushMatrix()
-            tankAxle(i);
+            tankAxle(axleX);
             popMatrix();
         }
     }
@@ -658,9 +682,9 @@ function setup(shaders)
 
     function drawHead(){
         if(movementHead != 0){
-            multTranslation([1.5,0,1.5]);
+            multTranslation([centerHead,0,centerHead]);
             multRotationY(movementHead);
-            multTranslation([-1.5,0,-1.5]);
+            multTranslation([-centerHead,0,-centerHead]);
         }
         
         pushMatrix()
@@ -680,9 +704,9 @@ function setup(shaders)
         popMatrix()
 
         pushMatrix()
-        multTranslation([1.7,2.5,0]);
+        multTranslation([centerHatchetX,centerHatchetY,0]);
         multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
+        multTranslation([-centerHatchetX,-centerHatchetY,0]);
             pushMatrix()
             bazuka();
             popMatrix()
@@ -702,14 +726,14 @@ function setup(shaders)
     function drawProjectile(){
         pushMatrix()
         if(bulletPos1 != 0){
-            multTranslation([1.5,0,1.5]);
+            multTranslation([centerHead,0,centerHead]);
             multRotationY(bulletPos1);
-            multTranslation([-1.5,0,-1.5]);
+            multTranslation([-centerHead,0,-centerHead]);
         }
         if(bulletPos2 != 0){
-            multTranslation([1.7,2.5,0]);
+            multTranslation([centerHatchetX,centerHatchetY,0]);
             multRotationZ(bulletPos2);
-            multTranslation([-1.7,-2.5,0]);
+            multTranslation([-centerHatchetX,-centerHatchetY,0]);
         }
 
         projectile();
@@ -737,7 +761,7 @@ function setup(shaders)
             drawFloor();
         popMatrix();
 
-        multTranslation([-1.5,0,-1.5]);
+        multTranslation([centerTank,0,centerTank]);
         multTranslation([movementTank,0,0]);
         drawTank()
         
@@ -749,7 +773,7 @@ function setup(shaders)
             updatePosition(dt);
             drawProjectile();
 
-            if((2.6-bulletY) <= 0){
+            if((projTranslationY-bulletY) <= 0){
                 bullet = false;
                 resetProjectileVar();
             }
