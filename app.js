@@ -1,5 +1,5 @@
 import { buildProgramFromSources, loadShadersFromURLS, setupWebGL } from "../../libs/utils.js";
-import { ortho, lookAt, flatten, vec4, mult, rotateZ} from "../../libs/MV.js";
+import { ortho, lookAt, flatten, vec4, mult, rotateZ, inverse} from "../../libs/MV.js";
 import {modelView, loadMatrix, multRotationY, multScale, multTranslation, popMatrix, pushMatrix, multRotationZ, multRotationX} from "../../libs/stack.js";
 
 import * as PYRAMID from '../../libs/pyramid.js';
@@ -35,9 +35,11 @@ const frontViewComm = '1';
 const topViewComm = '2';
 const profileViewComm = '3';
 const axonometricViewComm = '4';
+const backViewComm = '5';
 
 //Camera Views
-const frontView = lookAt([0.5,0,0], [0,0,0], [1,1,0]); //Camera's back view
+const frontView = lookAt([0.5,0,0], [0,0,0], [1,1,0]); //Camera's front view
+const backView = lookAt([-0.5,0,0], [0,0,0], [1,1,0]); //Camera's back view
 const topView  = lookAt([0,1,0], [0,0,0], [1,1,0]);    //Camera's top view
 const profileView = lookAt([0,0,0], [0,0,0], [1,1,0]); //Camera's profile view
 const axonometricView = lookAt([3,3,3], [0,0,0], [1,2,1]); // Camera's axonometric view
@@ -52,16 +54,16 @@ const floorTranslationY = -0.5;
 
 //Wheel Constants
 const wheelScaleX = 1;
-const wheelScaleY = 1;
-const wheelScaleZ = 0.5;
+const wheelScaleY = 0.5;
+const wheelScaleZ = 1;
 const wheelTranslationY = 0.5;
 const wheelRotationX = 90;
 
 
 //Rim Constants
 const rimScaleX = 0.6;
-const rimScaleY = 0.6;
-const rimScaleZ = 0.51;
+const rimScaleY = 0.51;
+const rimScaleZ = 0.6;
 const rimTranslationY = 0.5;
 const rimRotationX = 90;
 
@@ -199,11 +201,11 @@ const WEIRD_PINK = vec4(0.8,0.7,0.8,1.0);
 
 
 let movementTank = 0;
-let movementWheels = 0;
 //ADDED VARIABLE TO MAKE BAZUKA GO UP AND DOWN NOT WORKING YET!
 let bazukaAngle = 0;
 //ADDED VARIABLE TO MAKE ROTATE NOT WORKING YET!
 let movementHead = 0;
+
 const bazukaAngleMIN = 0.0;
 const bazukaAngleMAX = 30;
 const fireVelocity = 10;
@@ -222,6 +224,9 @@ let bulletY=0;
 let gForce = 9.8;
 
 
+let M;
+let P0;
+
 
 function setup(shaders)
 {
@@ -232,8 +237,8 @@ function setup(shaders)
 
     let program = buildProgramFromSources(gl, shaders["shader.vert"], shaders["shader.frag"]);
 
-    let mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
-    
+    let mProjection = getOrthoValue();
+
     mode = gl.TRIANGLES; 
 
     resize_canvas();
@@ -291,6 +296,11 @@ function setup(shaders)
                 bulletLoc = 0;
                 bulletPos1 = movementHead;
                 bulletPos2 = bazukaAngle;
+
+                M= mult( inverse(modelView()),modelView());
+                P0 = mult(M,vec4(0,0.5,0,1));
+                console.log(P0);
+
                 time = new Date().getTime();
                 break;
 
@@ -319,6 +329,9 @@ function setup(shaders)
             case axonometricViewComm:
                 view = axonometricView;
                 break;
+            case backViewComm:
+                view = backView;
+                break;
         }
     }
 
@@ -339,8 +352,7 @@ function setup(shaders)
         canvas.height = window.innerHeight;
         aspect = canvas.width / canvas.height;
         gl.viewport(0,0,canvas.width, canvas.height);
-        mProjection = ortho(-VP_DISTANCE*aspect,VP_DISTANCE*aspect, -VP_DISTANCE, VP_DISTANCE,-3*VP_DISTANCE,3*VP_DISTANCE);
-    
+        mProjection = getOrthoValue();
     }
 
     function uploadModelView()
@@ -396,9 +408,9 @@ function setup(shaders)
 
     function wheel(i,j){
         multTranslation([i,wheelTranslationY,j])
-        multScale([wheelScaleX,wheelScaleY,wheelScaleZ])
         multRotationX(wheelRotationX)
         multRotationY(cilinderRotationY());
+        multScale([wheelScaleX,wheelScaleY,wheelScaleZ]);
 
         uploadModelView();
 
@@ -410,10 +422,9 @@ function setup(shaders)
     
     function tankRim(i,j){
         multTranslation([i,rimTranslationY,j])
-        multScale([rimScaleX,rimScaleY,rimScaleZ])
         multRotationX(rimRotationX)
-        
         multRotationY(cilinderRotationY())
+        multScale([rimScaleX,rimScaleY,rimScaleZ])
         
         uploadModelView();
 
@@ -426,8 +437,8 @@ function setup(shaders)
 
         multTranslation([i,axleTranslationY,axleTranslationZ])
         multRotationX(axleRotationX);
-        multScale([axleScaleX,axleScaleY,axleScaleZ])
         multRotationY(cilinderRotationY());
+        multScale([axleScaleX,axleScaleY,axleScaleZ])
 
         uploadModelView();
 
@@ -533,7 +544,6 @@ function setup(shaders)
     }
 
     function bazuka(){
-        
         multTranslation([bazukaTranslationX, bazukaTranslationY, bazukaTranslationZ])
         multRotationZ(bazukaRotationZ)
         multScale([bazukaScaleX, bazukaScaleY, bazukaScaleZ])
@@ -578,9 +588,10 @@ function setup(shaders)
     }
 
     function projectile() {
-        //console.log("X is NaN:" + isNaN(parseFloat(bulletX)) + ". Value is " + bulletX);
+        
         multTranslation([5.3+bulletX, 2.6-bulletY, 1.5]);
         multScale([0.2,0.2,0.2]);
+        
         uploadModelView();
 
         const color = gl.getUniformLocation(program, "fColor");
@@ -597,15 +608,15 @@ function setup(shaders)
     }
 
     function updateVelocity(dt) {
-        console.log("velocityX is "+ velocityX);
-        console.log("velocityY is "+ velocityY);
+        //console.log("velocityX is "+ velocityX);
+        //console.log("velocityY is "+ velocityY);
         velocityX += gForce * dt;
         velocityY += gForce * dt;
     }
 
     function updatePosition(dt) {
-        console.log("bulletX is "+ bulletX);
-        console.log("bulletY is "+ bulletY);
+        //console.log("bulletX is "+ bulletX);
+        //console.log("bulletY is "+ bulletY);
         bulletX += velocityX * dt + (gForce * Math.pow(dt,2)*0.5);
         bulletY += velocityY * dt + (gForce * Math.pow(dt,2)*0.5);
     }
@@ -652,6 +663,24 @@ function setup(shaders)
         popMatrix()
     }
 
+    function drawTankBody(){
+        pushMatrix()
+        tankBody();
+        popMatrix()
+
+        pushMatrix()
+        grill1();
+        popMatrix()
+
+        pushMatrix()
+        grill2();
+        popMatrix()
+
+        pushMatrix()
+        grill3();
+        popMatrix()
+    }
+
     function drawTank(){
         pushMatrix()
         drawWheels();
@@ -666,30 +695,12 @@ function setup(shaders)
         popMatrix()
 
         pushMatrix()
-        tankBody();
+        drawTankBody();
         popMatrix()
 
         pushMatrix()
         drawHead();
         popMatrix()    
-        
-        pushMatrix()
-        grill1();
-        popMatrix()
-
-        pushMatrix()
-        grill2();
-        popMatrix()
-
-        pushMatrix()
-        grill3();
-        popMatrix()
-
-        /*if(bullet){
-            //bullet = false;
-            drawProjectile();
-        }*/
-
     }
 
     function drawHead(){
@@ -719,27 +730,20 @@ function setup(shaders)
         multTranslation([1.7,2.5,0]);
         multRotationZ(bazukaAngle);
         multTranslation([-1.7,-2.5,0]);
-        bazuka();
-        popMatrix()
-
-        pushMatrix()
-        multTranslation([1.7,2.5,0]);
-        multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
-        bazukaBelt();
+            pushMatrix()
+            bazuka();
+            popMatrix()
+            pushMatrix()
+            bazukaBelt();
+            popMatrix()
+            pushMatrix()
+            bazukaSleeve();
+            popMatrix()
         popMatrix()
 
         pushMatrix()
         hatchet();
         popMatrix()
-
-        pushMatrix()
-        multTranslation([1.7,2.5,0]);
-        multRotationZ(bazukaAngle);
-        multTranslation([-1.7,-2.5,0]);
-        bazukaSleeve();
-        popMatrix()
-
     }
 
     function testDrawProjectile(){
@@ -756,7 +760,6 @@ function setup(shaders)
         }
 
         projectile();
-        //bullet = false;
         popMatrix()
     }
 
@@ -767,9 +770,7 @@ function setup(shaders)
             //bulletLoc += 0.1;
             //bulletHeight += 0.1;
         }
-
        
-
         window.requestAnimationFrame(render);
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
